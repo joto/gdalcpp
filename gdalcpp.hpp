@@ -288,8 +288,8 @@ namespace gdalcpp {
             }
         }
 
-        OGRLayer* get() const {
-            return m_layer;
+        OGRLayer& get() const {
+            return *m_layer;
         }
 
         const char* name() {
@@ -340,7 +340,7 @@ namespace gdalcpp {
 
         Feature(Layer& layer, std::unique_ptr<OGRGeometry>&& geometry) :
             m_layer(layer),
-            m_feature(m_layer.get()->GetLayerDefn()) {
+            m_feature(m_layer.get().GetLayerDefn()) {
             OGRErr result = m_feature.SetGeometryDirectly(geometry.release());
             if (result != OGRERR_NONE) {
                 throw gdal_error(std::string("setting feature geometry in layer '") + m_layer.name() + "' failed", result, m_layer.dataset().driver_name(), m_layer.dataset().dataset_name());
@@ -348,7 +348,7 @@ namespace gdalcpp {
         }
 
         void add_to_layer() {
-            OGRErr result = m_layer.get()->CreateFeature(&m_feature);
+            OGRErr result = m_layer.get().CreateFeature(&m_feature);
             if (result != OGRERR_NONE) {
                 throw gdal_error(std::string("creating feature in layer '") + m_layer.name() + "' failed", result, m_layer.dataset().driver_name(), m_layer.dataset().dataset_name());
             }
