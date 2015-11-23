@@ -167,15 +167,37 @@ namespace gdalcpp {
 
         SRS() :
             m_spatial_reference() {
-            m_spatial_reference.SetWellKnownGeogCS("WGS84");
+            auto result = m_spatial_reference.SetWellKnownGeogCS("WGS84");
+            if (result != OGRERR_NONE) {
+                throw gdal_error(std::string("can not initialize spatial reference system WGS84"), result);
+            }
         }
 
-        SRS(const char* name) :
+        explicit SRS(int epsg) :
             m_spatial_reference() {
-            m_spatial_reference.importFromProj4(name);
+            auto result = m_spatial_reference.importFromEPSG(epsg);
+            if (result != OGRERR_NONE) {
+                throw gdal_error(std::string("can not initialize spatial reference system for EPSG:") + std::to_string(epsg), result);
+            }
         }
 
-        SRS(const OGRSpatialReference& spatial_reference) :
+        explicit SRS(const char* name) :
+            m_spatial_reference() {
+            auto result = m_spatial_reference.importFromProj4(name);
+            if (result != OGRERR_NONE) {
+                throw gdal_error(std::string("can not initialize spatial reference system '") + name + "'", result);
+            }
+        }
+
+        explicit SRS(const std::string& name) :
+            m_spatial_reference() {
+            auto result = m_spatial_reference.importFromProj4(name.c_str());
+            if (result != OGRERR_NONE) {
+                throw gdal_error(std::string("can not initialize spatial reference system '") + name + "'", result);
+            }
+        }
+
+        explicit SRS(const OGRSpatialReference& spatial_reference) :
             m_spatial_reference(spatial_reference) {
         }
 
