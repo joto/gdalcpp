@@ -181,6 +181,21 @@ namespace gdalcpp {
 
     public:
 
+        Dataset(const std::string& driver_name, const std::string& dataset_name, OGRSpatialReference& spatial_reference, const std::vector<std::string>& options = {}) :
+            m_driver_name(driver_name),
+            m_dataset_name(dataset_name),
+            m_options(options),
+            m_spatial_reference(spatial_reference),
+#if GDAL_VERSION_MAJOR >= 2
+            m_dataset(detail::Driver(driver_name).get().Create(dataset_name.c_str(), 0, 0, 0, GDT_Unknown, m_options.get())) {
+#else
+            m_dataset(detail::Driver(driver_name).get().CreateDataSource(dataset_name.c_str(), m_options.get())) {
+#endif
+            if (!m_dataset) {
+                throw gdal_error(std::string("failed to create dataset '") + dataset_name + "'", OGRERR_NONE, driver_name, dataset_name);
+            }
+        }
+
         Dataset(const std::string& driver_name, const std::string& dataset_name, const std::string& proj = "", const std::vector<std::string>& options = {}) :
             m_driver_name(driver_name),
             m_dataset_name(dataset_name),
