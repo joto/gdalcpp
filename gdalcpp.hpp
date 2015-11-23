@@ -235,14 +235,16 @@ namespace gdalcpp {
 
     class Layer {
 
+        detail::Options m_options;
         Dataset& m_dataset;
         OGRLayer* m_layer;
 
     public:
 
-        Layer(Dataset& dataset, const std::string& layer_name, OGRwkbGeometryType type) :
+        Layer(Dataset& dataset, const std::string& layer_name, OGRwkbGeometryType type, const std::vector<std::string>& options = {}) :
+            m_options(options),
             m_dataset(dataset),
-            m_layer(dataset.get().CreateLayer(layer_name.c_str(), dataset.spatial_reference(), type)) {
+            m_layer(dataset.get().CreateLayer(layer_name.c_str(), dataset.spatial_reference(), type, m_options.get())) {
             if (!m_layer) {
                 throw gdal_error(std::string("failed to create layer '") + layer_name + "'", OGRERR_NONE,
                     dataset.driver_name(), dataset.dataset_name(), layer_name);
