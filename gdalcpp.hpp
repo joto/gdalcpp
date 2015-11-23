@@ -232,6 +232,18 @@ namespace gdalcpp {
             return &m_spatial_reference;
         }
 
+        void exec(const char* sql) {
+            auto result = m_dataset->ExecuteSQL(sql, nullptr, nullptr);
+            if (result) {
+                m_dataset->ReleaseResultSet(result);
+            }
+        }
+
+        void exec(const std::string& sql) {
+            exec(sql.c_str());
+        }
+
+
         Dataset& start_transaction() {
 #if GDAL_VERSION_MAJOR >= 2
             m_dataset->StartTransaction();
