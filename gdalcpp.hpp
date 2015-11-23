@@ -98,7 +98,7 @@ namespace gdalcpp {
             return m_field;
         }
 
-        OGRERR error() const {
+        OGRErr error() const {
             return m_error;
         }
 
