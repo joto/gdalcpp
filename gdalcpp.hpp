@@ -306,7 +306,7 @@ namespace gdalcpp {
         Layer& start_transaction() {
             OGRErr result = m_layer->StartTransaction();
             if (result != OGRERR_NONE) {
-                throw gdal_error(std::string("starting transaction on layer '") + name() + "' failed", result, m_layer.dataset().driver_name(), m_layer.dataset().dataset_name(), name());
+                throw gdal_error(std::string("starting transaction on layer '") + name() + "' failed", result, m_dataset.driver_name(), m_dataset.dataset_name(), name());
             }
             return *this;
         }
@@ -314,7 +314,7 @@ namespace gdalcpp {
         Layer& commit_transaction() {
             OGRErr result = m_layer->CommitTransaction();
             if (result != OGRERR_NONE) {
-                throw gdal_error(std::string("committing transaction on layer '") + name() + "' failed", result, m_layer.dataset().driver_name(), m_layer.dataset().dataset_name(), name());
+                throw gdal_error(std::string("committing transaction on layer '") + name() + "' failed", result, m_dataset.driver_name(), m_dataset.dataset_name(), name());
             }
             return *this;
          }
@@ -323,24 +323,24 @@ namespace gdalcpp {
 
     class Feature {
 
-        OGRLayer* m_layer;
+        Layer& m_layer;
         OGRFeature m_feature;
 
     public:
 
         Feature(Layer& layer, std::unique_ptr<OGRGeometry>&& geometry) :
-            m_layer(layer.get()),
-            m_feature(m_layer->GetLayerDefn()) {
+            m_layer(layer),
+            m_feature(m_layer.get()->GetLayerDefn()) {
             OGRErr result = m_feature.SetGeometryDirectly(geometry.release());
             if (result != OGRERR_NONE) {
-                throw gdal_error(std::string("setting feature geometry in layer '" + m_layer.name() + "' failed", result, m_layer.dataset().driver_name(), m_layer.dataset().dataset_name());
+                throw gdal_error(std::string("setting feature geometry in layer '") + m_layer.name() + "' failed", result, m_layer.dataset().driver_name(), m_layer.dataset().dataset_name());
             }
         }
 
         void add_to_layer() {
-            OGRErr result = m_layer->CreateFeature(&m_feature);
+            OGRErr result = m_layer.get()->CreateFeature(&m_feature);
             if (result != OGRERR_NONE) {
-                throw gdal_error(std::string("creating feature in layer '" + m_layer.name() + "' failed", result, m_layer.dataset().driver_name(), m_layer.dataset().dataset_name());
+                throw gdal_error(std::string("creating feature in layer '") + m_layer.name() + "' failed", result, m_layer.dataset().driver_name(), m_layer.dataset().dataset_name());
             }
         }
 
