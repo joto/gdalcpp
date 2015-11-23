@@ -15,7 +15,7 @@ various programs.
 
 ## Using
 
-Just copy gdalcpp.hpp over into your include file.
+Just copy gdalcpp.hpp over into your include directory.
 
 
 ## Documentation

@@ -5,7 +5,7 @@
 
 C++11 wrapper classes for GDAL/OGR.
 
-Version 1.0.0
+Version 1.1.0
 
 https://github.com/joto/gdalcpp
 
