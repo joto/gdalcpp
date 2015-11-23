@@ -303,6 +303,22 @@ namespace gdalcpp {
             return m_dataset;
         }
 
+        Layer& start_transaction() {
+            OGRErr result = m_layer->StartTransaction();
+            if (result != OGRERR_NONE) {
+                throw gdal_error(std::string("starting transaction on layer '") + name() + "' failed", result, m_layer.dataset().driver_name(), m_layer.dataset().dataset_name(), name());
+            }
+            return *this;
+        }
+
+        Layer& commit_transaction() {
+            OGRErr result = m_layer->CommitTransaction();
+            if (result != OGRERR_NONE) {
+                throw gdal_error(std::string("committing transaction on layer '") + name() + "' failed", result, m_layer.dataset().driver_name(), m_layer.dataset().dataset_name(), name());
+            }
+            return *this;
+         }
+
     }; // class Layer
 
     class Feature {
