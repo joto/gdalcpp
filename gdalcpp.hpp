@@ -310,11 +310,19 @@ namespace gdalcpp {
             }
         }
 
-        OGRLayer& get() const {
+        OGRLayer& get() {
             return *m_layer;
         }
 
-        const char* name() {
+        const OGRLayer& get() const {
+            return *m_layer;
+        }
+
+        Dataset& dataset() const {
+            return m_dataset;
+        }
+
+        const char* name() const {
             return m_layer->GetName();
         }
 
@@ -329,10 +337,6 @@ namespace gdalcpp {
             }
 
             return *this;
-        }
-
-        Dataset& dataset() const {
-            return m_dataset;
         }
 
         Layer& start_transaction() {
