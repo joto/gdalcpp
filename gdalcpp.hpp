@@ -159,6 +159,36 @@ namespace gdalcpp {
 
     } // namespace detail
 
+    class SRS {
+
+        OGRSpatialReference m_spatial_reference;
+
+    public:
+
+        SRS() :
+            m_spatial_reference() {
+            m_spatial_reference.SetWellKnownGeogCS("WGS84");
+        }
+
+        SRS(const char* name) :
+            m_spatial_reference() {
+            m_spatial_reference.importFromProj4(name);
+        }
+
+        SRS(const OGRSpatialReference& spatial_reference) :
+            m_spatial_reference(spatial_reference) {
+        }
+
+        OGRSpatialReference& get() {
+            return m_spatial_reference;
+        }
+
+        const OGRSpatialReference& get() const {
+            return m_spatial_reference;
+        }
+
+    }; // class SRS
+
     class Dataset {
 
         struct gdal_dataset_deleter {
@@ -176,16 +206,16 @@ namespace gdalcpp {
         std::string m_driver_name;
         std::string m_dataset_name;
         detail::Options m_options;
-        OGRSpatialReference m_spatial_reference;
+        SRS m_srs;
         std::unique_ptr<gdal_dataset_type, gdal_dataset_deleter> m_dataset;
 
     public:
 
-        Dataset(const std::string& driver_name, const std::string& dataset_name, OGRSpatialReference& spatial_reference, const std::vector<std::string>& options = {}) :
+        Dataset(const std::string& driver_name, const std::string& dataset_name, const SRS& srs = SRS{}, const std::vector<std::string>& options = {}) :
             m_driver_name(driver_name),
             m_dataset_name(dataset_name),
             m_options(options),
-            m_spatial_reference(spatial_reference),
+            m_srs(srs),
 #if GDAL_VERSION_MAJOR >= 2
             m_dataset(detail::Driver(driver_name).get().Create(dataset_name.c_str(), 0, 0, 0, GDT_Unknown, m_options.get())) {
 #else
@@ -193,26 +223,6 @@ namespace gdalcpp {
 #endif
             if (!m_dataset) {
                 throw gdal_error(std::string("failed to create dataset '") + dataset_name + "'", OGRERR_NONE, driver_name, dataset_name);
-            }
-        }
-
-        Dataset(const std::string& driver_name, const std::string& dataset_name, const std::string& proj = "", const std::vector<std::string>& options = {}) :
-            m_driver_name(driver_name),
-            m_dataset_name(dataset_name),
-            m_options(options),
-            m_spatial_reference(),
-#if GDAL_VERSION_MAJOR >= 2
-            m_dataset(detail::Driver(driver_name).get().Create(dataset_name.c_str(), 0, 0, 0, GDT_Unknown, m_options.get())) {
-#else
-            m_dataset(detail::Driver(driver_name).get().CreateDataSource(dataset_name.c_str(), m_options.get())) {
-#endif
-            if (!m_dataset) {
-                throw gdal_error(std::string("failed to create dataset '") + dataset_name + "'", OGRERR_NONE, driver_name, dataset_name);
-            }
-            if (proj.empty()) {
-                m_spatial_reference.SetWellKnownGeogCS("WGS84");
-            } else {
-                m_spatial_reference.importFromProj4(proj.c_str());
             }
         }
 
@@ -228,8 +238,8 @@ namespace gdalcpp {
             return *m_dataset;
         }
 
-        OGRSpatialReference* spatial_reference() {
-            return &m_spatial_reference;
+        SRS& srs() {
+            return m_srs;
         }
 
         void exec(const char* sql) {
@@ -271,7 +281,7 @@ namespace gdalcpp {
         Layer(Dataset& dataset, const std::string& layer_name, OGRwkbGeometryType type, const std::vector<std::string>& options = {}) :
             m_options(options),
             m_dataset(dataset),
-            m_layer(dataset.get().CreateLayer(layer_name.c_str(), dataset.spatial_reference(), type, m_options.get())) {
+            m_layer(dataset.get().CreateLayer(layer_name.c_str(), &dataset.srs().get(), type, m_options.get())) {
             if (!m_layer) {
                 throw gdal_error(std::string("failed to create layer '") + layer_name + "'", OGRERR_NONE,
                     dataset.driver_name(), dataset.dataset_name(), layer_name);
