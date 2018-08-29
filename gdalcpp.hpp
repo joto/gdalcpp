@@ -85,23 +85,23 @@ namespace gdalcpp {
             m_error(error) {
         }
 
-        const std::string& driver() const {
+        const std::string& driver() const noexcept {
             return m_driver;
         }
 
-        const std::string& dataset() const {
+        const std::string& dataset() const noexcept {
             return m_dataset;
         }
 
-        const std::string& layer() const {
+        const std::string& layer() const noexcept {
             return m_layer;
         }
 
-        const std::string& field() const {
+        const std::string& field() const noexcept {
             return m_field;
         }
 
-        OGRErr error() const {
+        OGRErr error() const noexcept {
             return m_error;
         }
 
@@ -111,18 +111,26 @@ namespace gdalcpp {
 
         struct init_wrapper {
 #if GDAL_VERSION_MAJOR >= 2
-            init_wrapper() { GDALAllRegister(); }
+            init_wrapper() noexcept {
+                GDALAllRegister();
+            }
 #else
-            init_wrapper() { OGRRegisterAll(); }
-            ~init_wrapper() { OGRCleanupAll(); }
+            init_wrapper() noexcept {
+                OGRRegisterAll();
+            }
+            ~init_wrapper() noexcept {
+                OGRCleanupAll();
+            }
 #endif
-        };
+        }; // struct init_wrapper
 
         struct init_library {
+
             init_library() {
                 static init_wrapper iw;
             }
-        };
+
+        }; // struct init_library
 
         class Driver : private init_library {
 
@@ -142,7 +150,7 @@ namespace gdalcpp {
                 }
             }
 
-            gdal_driver_type& get() const {
+            gdal_driver_type& get() const noexcept {
                 return *m_driver;
             }
 
@@ -162,7 +170,7 @@ namespace gdalcpp {
                 m_ptrs[options.size()] = nullptr;
             }
 
-            char** get() const {
+            char** get() const noexcept {
                 return const_cast<char**>(m_ptrs.get());
             }
 
@@ -212,11 +220,11 @@ namespace gdalcpp {
             m_spatial_reference(spatial_reference) {
         }
 
-        OGRSpatialReference& get() {
+        OGRSpatialReference& get() noexcept {
             return m_spatial_reference;
         }
 
-        const OGRSpatialReference& get() const {
+        const OGRSpatialReference& get() const noexcept {
             return m_spatial_reference;
         }
 
@@ -261,7 +269,7 @@ namespace gdalcpp {
             }
         }
 
-        ~Dataset() {
+        ~Dataset() noexcept {
             try {
                 if (m_edit_count > 0) {
                     commit_transaction();
@@ -270,19 +278,19 @@ namespace gdalcpp {
             }
         }
 
-        const std::string& driver_name() const {
+        const std::string& driver_name() const noexcept {
             return m_driver_name;
         }
 
-        const std::string& dataset_name() const {
+        const std::string& dataset_name() const noexcept {
             return m_dataset_name;
         }
 
-        gdal_dataset_type& get() const {
+        gdal_dataset_type& get() const noexcept {
             return *m_dataset;
         }
 
-        SRS& srs() {
+        SRS& srs() noexcept {
             return m_srs;
         }
 
@@ -334,7 +342,7 @@ namespace gdalcpp {
             }
         }
 
-        Dataset& enable_auto_transactions(uint64_t edits = 100000) {
+        Dataset& enable_auto_transactions(uint64_t edits = 100000) noexcept {
             m_max_edit_count = edits;
             return *this;
         }
@@ -367,15 +375,15 @@ namespace gdalcpp {
             }
         }
 
-        OGRLayer& get() {
+        OGRLayer& get() noexcept {
             return *m_layer;
         }
 
-        const OGRLayer& get() const {
+        const OGRLayer& get() const noexcept {
             return *m_layer;
         }
 
-        Dataset& dataset() const {
+        Dataset& dataset() const noexcept {
             return m_dataset;
         }
 
