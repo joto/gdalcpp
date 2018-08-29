@@ -5,11 +5,11 @@
 
 C++11 wrapper classes for GDAL/OGR.
 
-Version 1.1.1
+Version 1.2.0
 
 https://github.com/joto/gdalcpp
 
-Copyright 2015 Jochen Topf <jochen@topf.org>
+Copyright 2015-2018 Jochen Topf <jochen@topf.org>
 
 Boost Software License - Version 1.0 - August 17th, 2003
 
