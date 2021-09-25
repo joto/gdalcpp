@@ -190,7 +190,7 @@ namespace gdalcpp {
 
         SRS() :
             m_spatial_reference() {
-            const auto result = m_spatial_reference.SetWellKnownGeogCS("WGS84");
+            const auto result = m_spatial_reference.SetWellKnownGeogCS("CRS84");
             if (result != OGRERR_NONE) {
                 throw gdal_error{std::string{"can not initialize spatial reference system WGS84"},
                                  result};
